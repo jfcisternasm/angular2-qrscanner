@@ -181,6 +181,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
         if(!this.videoElement){
             this.videoElement = this.renderer.createElement('video');
+            // setting playsinline is necessary to avoid black screen on iOS.
             setVideoAttributes(this.videoElement, {'autoplay': 'true', 'playsinline': 'true', 'muted': 'true'});
             this.renderer.appendChild(this.videoWrapper.nativeElement, this.videoElement);
         }
@@ -241,7 +242,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                                             if (device) {
                                             resolve({ 'deviceId': { 'exact': device.deviceId }, 'facingMode': this.facing });
                                             } else {
-                                            resolve(true);
+                                            resolve({ 'facingMode': this.facing });
                                             }
                                             });
                                             } catch (e) {
@@ -254,7 +255,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                                             if (this.debug) {
                                             console.log('[QrScanner] no navigator.mediaDevices.enumerateDevices');
                                             }
-                                            resolve(true);
+                                            resolve({ 'facingMode': this.facing });
                                             }
                                             })
                                             }
