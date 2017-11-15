@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, Output, EventEmitter, OnDestroy, Renderer2, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, Renderer2, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { QRCode } from './qrdecode/qrcode'
 
 /**
@@ -22,6 +22,7 @@ import { QRCode } from './qrdecode/qrcode'
  *
  * Both of these methods can be called to control the scanner if `stopAfterScan` is set to `false`
  */
+
 @Component({
     moduleId: 'module.id',
     selector: 'qr-scanner',
@@ -124,75 +125,21 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     private connectDevice(options: any): void {
 
+        // Avoid error access to navigator on some browsers
+        const _navigator: any = navigator;
         const self = this;
 
         function success(stream: any): void {
             self.stream = stream;
-            if (self.isWebkit || self.isMoz) {
-                try{
-                    self.videoElement.src = window.URL.createObjectURL(stream);
-                }catch(error){
+            try {
+                if("srcObject" in self.videoElement) {
                     self.videoElement.srcObject = stream;
+                } else {
+                    self.videoElement.src = window.URL.createObjectURL(stream);
                 }
-
-            } else {
+            } catch (err) {
                 self.videoElement.src = stream;
             }
-
-            /////////////////////CODE COPIED FROM P5/////////////////////
-            //            if (_navigator.mediaDevices === undefined) {
-            //                _navigator.mediaDevices = {};
-            //            }
-            //            // Some browsers partially implement mediaDevices. We can't just assign an object
-            //            // with getUserMedia as it would overwrite existing properties.
-            //            // Here, we will just add the getUserMedia property if it's missing.
-            //            if (_navigator.mediaDevices.getUserMedia === undefined) {
-            //                _navigator.mediaDevices.getUserMedia = function(constraints) {
-            //
-            //                    // First get ahold of the legacy getUserMedia, if present
-            //                    var getUserMedia = _navigator.webkitGetUserMedia || _navigator.mozGetUserMedia;
-            //
-            //                    // Some browsers just don't implement it - return a rejected promise with an error
-            //                    // to keep a consistent interface
-            //                    if (!getUserMedia) {
-            //                        return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-            //                    }
-            //
-            //                    // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-            //                    return new Promise(function(resolve, reject) {
-            //                        getUserMedia.call(_navigator, constraints, resolve, reject);
-            //                    });
-            //                };
-            //            }
-            //            if (_navigator.getUserMedia) {
-            //                if(!self.videoElement){
-            //                    self.videoElement = self.renderer.createElement('video');
-            //                    self.videoElement.setAttribute('autoplay', 'true');
-            //                    self.renderer.appendChild(self.videoWrapper.nativeElement, self.videoElement);
-            //                }
-            //                if (!self.mirror) { this.videoElement.classList.add('mirrored') }
-            //                if (!self.constraints) {
-            //                    self.constraints = {video: true, audio: false};
-            //                }
-            //                _navigator.mediaDevices.getUserMedia(self.constraints)
-            //                    .then( function(stream) {
-            //                    try {
-            //                        if("srcObject" in self.videoElement) {
-            //                            self.videoElement.srcObject = stream;
-            //                        } else {
-            //                            self.videoElement.src = window.URL.createObjectURL(stream);
-            //                        }
-            //                    } catch (err) {
-            //                        self.videoElement.src = stream;
-            //                    }
-            //                    //                if (cb) {
-            //                    //                    cb(stream);
-            //                    //                }
-            //                }, function(e) { console.log(e); });
-            //            } else {
-            //                throw 'getUserMedia not supported in this browser';
-            //            }
-            /////////////////////CODE COPIED FROM P5/////////////////////
 
             self.gUM = true;
             self.captureTimeout = setTimeout(captureToCanvas, self.updateTime);
@@ -201,6 +148,12 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         function error(): void {
             self.gUM = false;
             return;
+        }
+
+        function setVideoAttributes(el, attrs) {
+            for(var key in attrs) {
+                el.setAttribute(key, attrs[key]);
+            }
         }
 
         function captureToCanvas(): void {
@@ -226,37 +179,18 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             return;
         }
 
-
-
-        const _navigator: any = navigator;
-
         if(!this.videoElement){
             this.videoElement = this.renderer.createElement('video');
-            this.videoElement.setAttribute('autoplay', 'true');
-            this.videoElement.setAttribute('playsinline', 'true');
-            this.videoElement.setAttribute('muted', 'true');
+            setVideoAttributes(this.videoElement, {'autoplay': 'true', 'playsinline': 'true', 'muted': 'true'});
             this.renderer.appendChild(this.videoWrapper.nativeElement, this.videoElement);
         }
+
+        if (!this.constraints) {
+            this.constraints = {video: options, audio: false};
+        }
+
         if (!this.mirror) { this.videoElement.classList.add('mirrored') }
 
-        //        if (_navigator.mediaDevices){
-        //            this.isWebkit = true;
-        //            _navigator.mediaDevices.getUserMedia({ video: true, audio: false }).
-        //            then(success).catch(error);
-        //        } else if (_navigator.getUserMedia) {
-        //            this.isWebkit = true;
-        //            _navigator.getUserMedia({ video: options, audio: false }, success, error);
-        //        } else if (_navigator.webkitGetUserMedia) {
-        //            this.isWebkit = true;
-        //            _navigator.webkitGetUserMedia({ video: options, audio: false }, success, error);
-        //        } else if (_navigator.mozGetUserMedia) {
-        //            this.isMoz = true;
-        //            _navigator.mozGetUserMedia({ video: options, audio: false }, success, error);
-        //        }
-
-
-
-        /////////////////////CODE COPIED FROM P5/////////////////////
         if (_navigator.mediaDevices === undefined) {
             _navigator.mediaDevices = {};
         }
@@ -278,35 +212,16 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
                 // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
                 return new Promise(function(resolve, reject) {
-                    getUserMedia.call(_navigator, {video: true, audio: false}, resolve, reject);
+                    getUserMedia.call(_navigator, this.constraints, resolve, reject);
                 });
             };
         }
+
         if (_navigator.getUserMedia) {
-            if (!this.constraints) {
-                this.constraints = {video: true, audio: false};
-            }
-            _navigator.mediaDevices.getUserMedia(this.constraints).then(
-                function(stream) {
-                    self.stream = stream;
-                    try {
-                        if("srcObject" in self.videoElement) {
-                            self.videoElement.srcObject = stream;
-                        } else {
-                            self.videoElement.src = window.URL.createObjectURL(stream);
-                        }
-                    } catch (err) {
-                        self.videoElement.src = stream;
-                    }
-                }, function(e) { console.log(e); });
-            self.gUM = true;
-            self.captureTimeout = setTimeout(captureToCanvas, self.updateTime);
+            _navigator.mediaDevices.getUserMedia(this.constraints).then(success, error);
         } else {
             throw 'getUserMedia not supported in this browser';
         }
-        /////////////////////CODE COPIED FROM P5/////////////////////
-
-
 
         this.isDeviceConnected = true;
         this.captureTimeout = setTimeout(captureToCanvas, this.updateTime);
