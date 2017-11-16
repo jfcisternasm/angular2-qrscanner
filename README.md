@@ -21,7 +21,7 @@ import { QrScannerModule } from 'angular2-qrscanner';
   ],
   providers: [],
   bootstrap: [
-      
+    // ...
   ]
 })
 export class AppModule { }
@@ -36,5 +36,15 @@ export class AppModule { }
   [mirror]="false"       <!-- should the image be a mirror?                (default: false) -->
   [stopAfterScan]="true" <!-- should the scanner stop after first success? (default: true) -->
   [updateTime]="500"     <!-- miliseconds between new capture              (default: 500) -->
-  (onRead)="decodedOutput($event)"></qr-scanner>
+  (onRead)="decodedOutput($event)">
+</qr-scanner>
 ```
+```
+@public
+startScanning() {void}       Method called by ngInit to find devices and start scanning.
+stopScanning() {void}        Method called by ngDestroy (or on successful qr-scan) to stop scanning
+
+Both of these methods can be called to control the scanner if `stopAfterScan` is set to `false`
+```
+### source of my modifications for this fork
+https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia

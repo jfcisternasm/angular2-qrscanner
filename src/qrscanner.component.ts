@@ -27,7 +27,6 @@ import { QRCode } from './qrdecode/qrcode'
     moduleId: 'module.id',
     selector: 'qr-scanner',
     styles: [
-        ':host video {height: auto; width: 100%;}',
         ':host .mirrored { transform: rotateY(180deg); -webkit-transform:rotateY(180deg); -moz-transform:rotateY(180deg); }'
     ],
     template: `
