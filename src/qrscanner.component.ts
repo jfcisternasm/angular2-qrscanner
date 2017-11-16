@@ -181,7 +181,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         if(!this.videoElement){
             this.videoElement = this.renderer.createElement('video');
             // setting playsinline is necessary to avoid black screen on iOS.
-            setVideoAttributes(this.videoElement, {'autoplay': 'true', 'playsinline': 'true', 'muted': 'true'});
+            setVideoAttributes(this.videoElement, {'autoplay': 'true', 'playsinline': 'true', 'muted': 'true',
+                                                  'style': 'width: '+this.canvasWidth+'px; height: '+this.canvasHeight+'px;'});
             this.renderer.appendChild(this.videoWrapper.nativeElement, this.videoElement);
         }
 
