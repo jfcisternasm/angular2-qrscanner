@@ -14,6 +14,7 @@ import { QRCode } from './qrdecode/qrcode'
  *     [mirror]="false"         should the image be a mirror?                (default: false)
  *     [stopAfterScan]="true"   should the scanner stop after first success? (default: true)
  *     [updateTime]="500"       miliseconds between new capture              (default: 500)
+ *     [square]="true"          should the video be squared?                 (default: true) 
  *     (onRead)="decodedOutput(string)" </qr-scanner>
  *
  * @public
@@ -52,6 +53,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     @Input() mirror = false;
     @Input() stopAfterScan = true;
     @Input() updateTime = 500;
+    @Input() square = true;
 
     @Output() onRead: EventEmitter<string> = new EventEmitter<string>();
 
@@ -182,8 +184,12 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             this.videoElement = this.renderer.createElement('video');
             // setting playsinline is necessary to avoid black screen on iOS.
             setVideoAttributes(this.videoElement, {'autoplay': 'true', 'playsinline': 'true', 'muted': 'true',
-                                                  'style': 'width: '+this.canvasWidth+'px; height: '+this.canvasHeight+'px;'});
+                                                   'style': 'width: '+this.canvasWidth+'px; height: '+this.canvasHeight+'px;'});
             this.renderer.appendChild(this.videoWrapper.nativeElement, this.videoElement);
+            if (this.square){
+                setVideoAttributes(this.videoElement, {'style': 'object-fit: cover'});
+                setVideoAttributes(this.videoWrapper.nativeElement, {'style': 'width: ' + this.canvasWidth + 'px;height:'+ this.canvasHeight + 'px;overflow:hidden;display:block;margin: 0 auto;'});
+            }
         }
 
         if (!this.constraints) {

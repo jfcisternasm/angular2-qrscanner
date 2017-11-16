@@ -36,6 +36,7 @@ export class AppModule { }
   [mirror]="false"       <!-- should the image be a mirror?                (default: false) -->
   [stopAfterScan]="true" <!-- should the scanner stop after first success? (default: true) -->
   [updateTime]="500"     <!-- miliseconds between new capture              (default: 500) -->
+  [square]="true"        <!-- should the video be squared?                 (default: true) -->
   (onRead)="decodedOutput($event)">
 </qr-scanner>
 ```
