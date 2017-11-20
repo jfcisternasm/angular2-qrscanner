@@ -133,7 +133,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         function success(stream: any): void {
             self.stream = stream;
             try {
-                if("srcObject" in self.videoElement) {
+                if ("srcObject" in self.videoElement) {
                     self.videoElement.srcObject = stream;
                 } else {
                     self.videoElement.src = window.URL.createObjectURL(stream);
@@ -152,7 +152,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         function setVideoAttributes(el, attrs) {
-            for(var key in attrs) {
+            for (var key in attrs) {
                 el.setAttribute(key, attrs[key]);
             }
         }
@@ -180,20 +180,22 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             return;
         }
 
-        if(!this.videoElement){
+        if (!this.videoElement) {
             this.videoElement = this.renderer.createElement('video');
             // setting playsinline is necessary to avoid black screen on iOS.
-            setVideoAttributes(this.videoElement, {'autoplay': 'true', 'playsinline': 'true', 'muted': 'true',
-                                                   'style': 'width: '+this.canvasWidth+'px; height: '+this.canvasHeight+'px;'});
+            setVideoAttributes(this.videoElement, {
+                'autoplay': 'true', 'playsinline': 'true', 'muted': 'true',
+                'style': 'width: ' + this.canvasWidth + 'px; height: ' + this.canvasHeight + 'px;'
+            });
             this.renderer.appendChild(this.videoWrapper.nativeElement, this.videoElement);
-            if (this.square){
-                setVideoAttributes(this.videoElement, {'style': 'object-fit: cover'});
-                setVideoAttributes(this.videoWrapper.nativeElement, {'style': 'width: ' + this.canvasWidth + 'px;height:'+ this.canvasHeight + 'px;overflow:hidden;display:block;margin: 0 auto;'});
+            if (this.square) {
+                setVideoAttributes(this.videoElement, { 'style': 'object-fit: cover' });
+                setVideoAttributes(this.videoWrapper.nativeElement, { 'style': 'width: ' + this.canvasWidth + 'px;height:' + this.canvasHeight + 'px;overflow:hidden;display:block;margin: 0 auto;' });
             }
         }
 
         if (!this.constraints) {
-            this.constraints = {video: options, audio: false};
+            this.constraints = { video: options, audio: false };
         }
 
         if (!this.mirror) { this.videoElement.classList.add('mirrored') }
@@ -206,10 +208,10 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         // with getUserMedia as it would overwrite existing properties.
         // Here, we will just add the getUserMedia property if it's missing.
         if (_navigator.mediaDevices.getUserMedia === undefined) {
-            _navigator.mediaDevices.getUserMedia = function(constraints) {
+            _navigator.mediaDevices.getUserMedia = function (constraints) {
 
                 // First get ahold of the legacy getUserMedia, if present
-                var getUserMedia = _navigator.webkitGetUserMedia || _navigator.mozGetUserMedia;
+                var getUserMedia = _navigator.getUserMedia || _navigator.webkitGetUserMedia || _navigator.mozGetUserMedia;
 
                 // Some browsers just don't implement it - return a rejected promise with an error
                 // to keep a consistent interface
@@ -218,13 +220,13 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                 }
 
                 // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-                return new Promise(function(resolve, reject) {
+                return new Promise(function (resolve, reject) {
                     getUserMedia.call(_navigator, this.constraints, resolve, reject);
                 });
             };
         }
 
-        if (_navigator.getUserMedia) {
+        if (_navigator.getUserMedia || _navigator.mediaDevices.getUserMedia) {
             _navigator.mediaDevices.getUserMedia(this.constraints).then(success, error);
         } else {
             throw 'getUserMedia not supported in this browser';
@@ -234,55 +236,55 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.captureTimeout = setTimeout(captureToCanvas, this.updateTime);
     }
 
-    private get findMediaDevices(): Promise<{deviceId: { exact: string }, facingMode: string } | boolean> {
+    private get findMediaDevices(): Promise<{ deviceId: { exact: string }, facingMode: string } | boolean> {
 
-                                            const videoDevice =
-                                            (dvc: MediaDeviceInfo) => dvc.kind === 'videoinput' && dvc.label.search(/back/i) > -1;
+        const videoDevice =
+            (dvc: MediaDeviceInfo) => dvc.kind === 'videoinput' && dvc.label.search(/back/i) > -1;
 
-                                            return new Promise((resolve, reject) => {
-                                            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-                                            try {
-                                            navigator.mediaDevices.enumerateDevices()
-                                            .then((devices: MediaDeviceInfo[]) => {
-                                            const device = devices.find((_device: MediaDeviceInfo) => videoDevice(_device));
-                                            if (device) {
-                                            resolve({ 'deviceId': { 'exact': device.deviceId }, 'facingMode': this.facing });
-                                            } else {
-                                            resolve({ 'facingMode': this.facing });
-                                            }
-                                            });
-                                            } catch (e) {
-                                            if (this.debug) {
-                                            console.log(e);
-                                            }
-                                            reject(e);
-                                            }
-                                            } else {
-                                            if (this.debug) {
-                                            console.log('[QrScanner] no navigator.mediaDevices.enumerateDevices');
-                                            }
-                                            resolve({ 'facingMode': this.facing });
-                                            }
-                                            })
-                                            }
+        return new Promise((resolve, reject) => {
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                try {
+                    navigator.mediaDevices.enumerateDevices()
+                        .then((devices: MediaDeviceInfo[]) => {
+                            const device = devices.find((_device: MediaDeviceInfo) => videoDevice(_device));
+                            if (device) {
+                                resolve({ 'deviceId': { 'exact': device.deviceId }, 'facingMode': this.facing });
+                            } else {
+                                resolve({ 'facingMode': this.facing });
+                            }
+                        });
+                } catch (e) {
+                    if (this.debug) {
+                        console.log(e);
+                    }
+                    reject(e);
+                }
+            } else {
+                if (this.debug) {
+                    console.log('[QrScanner] no navigator.mediaDevices.enumerateDevices');
+                }
+                resolve({ 'facingMode': this.facing });
+            }
+        })
+    }
 
-                                            private decodeCallback(decoded: string) {
-                                            this.onRead.emit(decoded);
-                                            if (this.stopAfterScan) {
-                                            this.stopScanning();
-                                            }
-                                            }
+    private decodeCallback(decoded: string) {
+        this.onRead.emit(decoded);
+        if (this.stopAfterScan) {
+            this.stopScanning();
+        }
+    }
 
-                                            private load(): void {
-                                            this.stop = false;
-                                            this.isDeviceConnected = false;
+    private load(): void {
+        this.stop = false;
+        this.isDeviceConnected = false;
 
-                                            if (this.supported) {
-                                            this.initCanvas(this.canvasHeight, this.canvasWidth);
-                                            this.qrCode = new QRCode();
-                                            this.qrCode.myCallback = (decoded: string) => this.decodeCallback(decoded);
+        if (this.supported) {
+            this.initCanvas(this.canvasHeight, this.canvasWidth);
+            this.qrCode = new QRCode();
+            this.qrCode.myCallback = (decoded: string) => this.decodeCallback(decoded);
 
-                                            this.findMediaDevices.then((options) => this.connectDevice(options));
-                                            }
-                                            }
-                                            }
+            this.findMediaDevices.then((options) => this.connectDevice(options));
+        }
+    }
+}
