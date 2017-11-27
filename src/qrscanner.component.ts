@@ -165,14 +165,14 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             if (self.gUM) {
                 try {
                     if (self.videoElement.videoWidth > self.videoElement.videoHeight) {
-                        //landscape
+                        // landscape
                         self.gCtx.drawImage(self.videoElement, 0, 0, self.canvasWidth, self.canvasHeight);
                     } else {
                         self.gCtx.clearRect(0, 0, self.canvasWidth, self.canvasHeight);
-                        //portrait
+                        // portrait
                         var scale = self.canvasWidth / self.canvasHeight;
-                        var scaledHeight = self.canvasWidth * scale;
-                        var scaledWidth = self.canvasHeight * scale;
+                        var scaledHeight = (self.canvasWidth * scale) / (scale * 2);
+                        var scaledWidth = (self.canvasHeight * scale) / (scale * 2);
                         var marginLeft = (self.canvasWidth - scaledWidth) / 2;
                         self.gCtx.drawImage(self.videoElement, marginLeft, 0, scaledWidth, scaledHeight); // draw video
                     }
