@@ -33,7 +33,6 @@ import { QRCode } from './qrdecode/qrcode'
         ':host .mirrored { transform: rotateY(180deg); -webkit-transform:rotateY(180deg); -moz-transform:rotateY(180deg);  } .video { height: calc(100vh - 55px); }'
     ],
     template: `
-
 <canvas #qrCanvas [width]="canvasWidth" [height]="canvasHeight" hidden="true"></canvas>
 <div class="video" #videoWrapper></div>`
 })
