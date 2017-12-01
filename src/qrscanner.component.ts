@@ -39,8 +39,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @Input() canvasWidth = 640;
     @Input() canvasHeight = 480;
-    @Input() videoElementWidth = '640px';
-    @Input() videoElememtHeight = '480px';
+    @Input() videoElementWidth = '600px';
+    @Input() videoElememtHeight = '500px';
     @Input() facing: 'environment' | string = 'environment';
     @Input() debug = false;
     @Input() mirror = false;
@@ -189,12 +189,12 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             // setting playsinline is necessary to avoid black screen on iOS.
             setVideoAttributes(this.videoElement, {
                 'autoplay': 'true', 'playsinline': 'true', 'muted': 'true',
-                'style': 'width: ' + this.canvasWidth + 'px; height: ' + this.canvasHeight + 'px;'
+                'style': 'width: ' + this.videoElementWidth + '; height: ' + this.videoElememtHeight + ';'
             });
             this.renderer.appendChild(this.videoWrapper.nativeElement, this.videoElement);
             if (this.square) {
                 setVideoAttributes(this.videoElement, { 'style': 'object-fit: cover' });
-                setVideoAttributes(this.videoWrapper.nativeElement, { 'style': 'width: ' + this.videoElementWidth + '; height:' + this.videoElememtHeight + ';overflow:hidden;display:block;margin: 0 auto;' });
+                setVideoAttributes(this.videoWrapper.nativeElement, { 'style': 'width: ' + this.canvasWidth + 'px;height:' + this.canvasHeight + 'px;overflow:hidden;display:block;margin: 0 auto;' });
             }
         }
 
