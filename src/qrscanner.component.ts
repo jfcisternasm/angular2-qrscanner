@@ -28,21 +28,12 @@ import { QRCode } from './qrdecode/qrcode'
     moduleId: 'module.id',
     selector: 'qr-scanner',
     styles: [
-        ':host .mirrored { transform: rotateY(180deg); -webkit-transform:rotateY(180deg); -moz-transform:rotateY(180deg); }'
+        ':host .mirrored { transform: rotateY(180deg); -webkit-transform:rotateY(180deg); -moz-transform:rotateY(180deg);  } .video { height: calc(100vh - 55px); }'
     ],
     template: `
-<ng-container [ngSwitch]="supported">
-<ng-container *ngSwitchDefault>
+
 <canvas #qrCanvas [width]="canvasWidth" [height]="canvasHeight" hidden="true"></canvas>
-<div #videoWrapper></div>
-</ng-container>
-<ng-container *ngSwitchCase="false">
-<p>
-You are using an <strong>outdated</strong> browser.
-Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
-</p>
-</ng-container>
-</ng-container>`
+<div class="video" #videoWrapper></div>`
 })
 export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
