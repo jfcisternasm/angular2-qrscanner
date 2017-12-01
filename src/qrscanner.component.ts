@@ -11,6 +11,8 @@ import { QRCode } from './qrdecode/qrcode'
  *     [debug]="false"          debug flag for console.log spam              (default: false)
  *     [canvasWidth]="640"      canvas width                                 (default: 640)
  *     [canvasHeight]="480"     canvas height                                (default: 480)
+ *     [videoElementWidth]="640"      canvas width                           (default: 600)
+ *     [videoElementHeight]="480"     canvas height                          (default: 500)
  *     [mirror]="false"         should the image be a mirror?                (default: false)
  *     [stopAfterScan]="true"   should the scanner stop after first success? (default: true)
  *     [updateTime]="500"       miliseconds between new capture              (default: 500)
@@ -47,6 +49,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     @Input() stopAfterScan = true;
     @Input() updateTime = 500;
     @Input() square = true;
+    @Input() videoConstraints = {
+                    facingMode: ['user'],
+                    height: {ideal: 1080},
+                    width: {ideal: 1920},
+                };
 
     @Output() onRead: EventEmitter<string> = new EventEmitter<string>();
 
@@ -104,6 +111,19 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.stop = true;
     }
 
+    private load(): void {
+        this.stop = false;
+        this.isDeviceConnected = false;
+
+        if (this.supported) {
+            this.initCanvas(this.canvasHeight, this.canvasWidth);
+            this.qrCode = new QRCode();
+            this.qrCode.myCallback = (decoded: string) => this.decodeCallback(decoded);
+
+            this.findMediaDevices.then((options) => this.connectDevice(options));
+        }
+    }
+
     private isCanvasSupported(): boolean {
         const canvas = this.renderer.createElement('canvas');
         return !!(canvas.getContext && canvas.getContext('2d'));
@@ -115,6 +135,38 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.gCtx = this.qrCanvas.nativeElement.getContext('2d');
         this.gCtx.clearRect(0, 0, w, h);
         if (!this.mirror) { this.gCtx.translate(-1, 1); }
+    }
+
+    private get findMediaDevices(): Promise<any> {
+
+        const videoDevice =
+            (dvc: MediaDeviceInfo) => dvc.kind === 'videoinput' && dvc.label.search(/back/i) > -1;
+
+        return new Promise((resolve, reject) => {
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                try {
+                    navigator.mediaDevices.enumerateDevices()
+                        .then((devices: MediaDeviceInfo[]) => {
+                            const device = devices.find((_device: MediaDeviceInfo) => videoDevice(_device));
+                            if (device) {
+                                resolve({ 'deviceId': { 'exact': device.deviceId }, 'facingMode': this.facing });
+                            } else {
+                                resolve({ 'facingMode': this.facing });
+                            }
+                        });
+                } catch (e) {
+                    if (this.debug) {
+                        console.log(e);
+                    }
+                    reject(e);
+                }
+            } else {
+                if (this.debug) {
+                    console.log('[QrScanner] no navigator.mediaDevices.enumerateDevices');
+                }
+                resolve({ 'facingMode': this.facing });
+            }
+        })
     }
 
     private connectDevice(options: any): void {
@@ -199,7 +251,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         if (!this.constraints) {
-            this.constraints = { video: options, audio: false };
+            this.constraints = { video: this.videoConstraints, audio: false };
         }
 
         if (!this.mirror) { this.videoElement.classList.add('mirrored') }
@@ -240,38 +292,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.captureTimeout = setTimeout(captureToCanvas, this.updateTime);
     }
 
-    private get findMediaDevices(): Promise<any> {
-
-        const videoDevice =
-            (dvc: MediaDeviceInfo) => dvc.kind === 'videoinput' && dvc.label.search(/back/i) > -1;
-
-        return new Promise((resolve, reject) => {
-            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-                try {
-                    navigator.mediaDevices.enumerateDevices()
-                        .then((devices: MediaDeviceInfo[]) => {
-                            const device = devices.find((_device: MediaDeviceInfo) => videoDevice(_device));
-                            if (device) {
-                                resolve({ 'deviceId': { 'exact': device.deviceId }, 'facingMode': this.facing });
-                            } else {
-                                resolve({ 'facingMode': this.facing });
-                            }
-                        });
-                } catch (e) {
-                    if (this.debug) {
-                        console.log(e);
-                    }
-                    reject(e);
-                }
-            } else {
-                if (this.debug) {
-                    console.log('[QrScanner] no navigator.mediaDevices.enumerateDevices');
-                }
-                resolve({ 'facingMode': this.facing });
-            }
-        })
-    }
-
     private decodeCallback(decoded: string) {
         this.onRead.emit(decoded);
         if (this.stopAfterScan) {
@@ -279,16 +299,5 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    private load(): void {
-        this.stop = false;
-        this.isDeviceConnected = false;
 
-        if (this.supported) {
-            this.initCanvas(this.canvasHeight, this.canvasWidth);
-            this.qrCode = new QRCode();
-            this.qrCode.myCallback = (decoded: string) => this.decodeCallback(decoded);
-
-            this.findMediaDevices.then((options) => this.connectDevice(options));
-        }
-    }
 }
