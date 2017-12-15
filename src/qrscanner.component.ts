@@ -40,7 +40,7 @@ import { QRCode } from './qrdecode/qrcode'
 @Component({
     moduleId: 'module.id',
     selector: 'qr-scanner',
-    stylesUrl: ['./qrscanner.component.scss'],
+    styleUrls: ['./qrscanner.component.scss'],
     templateUrl: './qrscanner.component.html',
 })
 export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
