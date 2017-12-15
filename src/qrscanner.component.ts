@@ -1,4 +1,15 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, Renderer2, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    Renderer2,
+    ViewChild
+} from '@angular/core';
 import { QRCode } from './qrdecode/qrcode'
 
 /**
@@ -16,7 +27,7 @@ import { QRCode } from './qrdecode/qrcode'
  *     [mirror]="false"         should the image be a mirror?                (default: false)
  *     [stopAfterScan]="true"   should the scanner stop after first success? (default: true)
  *     [updateTime]="500"       miliseconds between new capture              (default: 500)
- *     [square]="true"          should the video be squared?                 (default: true) 
+ *     [square]="true"          should the video be squared?                 (default: true)
  *     (onRead)="decodedOutput(string)" </qr-scanner>
  *
  * @public
@@ -29,12 +40,8 @@ import { QRCode } from './qrdecode/qrcode'
 @Component({
     moduleId: 'module.id',
     selector: 'qr-scanner',
-    styles: [
-        ':host .mirrored { transform: rotateY(180deg); -webkit-transform:rotateY(180deg); -moz-transform:rotateY(180deg);  } .video { height: calc(100vh - 55px); }'
-    ],
-    template: `
-<canvas #qrCanvas [width]="canvasWidth" [height]="canvasHeight" hidden="true"></canvas>
-<div class="video" #videoWrapper></div>`
+    stylesUrl: ['./qrscanner.component.scss'],
+    templateUrl: './qrscanner.component.html',
 })
 export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -177,7 +184,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         function success(stream: any): void {
             self.stream = stream;
             try {
-                if ("srcObject" in self.videoElement) {
+                if ('srcObject' in self.videoElement) {
                     self.videoElement.srcObject = stream;
                 } else {
                     self.videoElement.src = window.URL.createObjectURL(stream);
@@ -214,10 +221,10 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                     } else {
                         self.gCtx.clearRect(0, 0, self.canvasWidth, self.canvasHeight);
                         // portrait
-                        var scale = self.canvasWidth / self.canvasHeight;
-                        var scaledHeight = (self.canvasWidth * scale) / (scale * 2);
-                        var scaledWidth = (self.canvasHeight * scale) / (scale * 2);
-                        var marginLeft = (self.canvasWidth - scaledWidth) / 2;
+                        const scale = self.canvasWidth / self.canvasHeight;
+                        const scaledHeight = (self.canvasWidth * scale) / (scale * 2);
+                        const scaledWidth = (self.canvasHeight * scale) / (scale * 2);
+                        const marginLeft = (self.canvasWidth - scaledWidth) / 2;
                         self.gCtx.drawImage(self.videoElement, marginLeft, 0, scaledWidth, scaledHeight); // draw video
                     }
                     self.qrCode.decode(self.qrCanvas.nativeElement);
@@ -245,7 +252,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             this.renderer.appendChild(this.videoWrapper.nativeElement, this.videoElement);
             if (this.square) {
                 setVideoAttributes(this.videoElement, { 'style': 'object-fit: cover' });
-                setVideoAttributes(this.videoWrapper.nativeElement, { 'style': 'width: ' + this.canvasWidth + 'px;height:' + this.canvasHeight + 'px;overflow:hidden;display:block;margin: 0 auto;' });
+                setVideoAttributes(
+                    this.videoWrapper.nativeElement, { 'style': 'width: '
+                    + this.canvasWidth
+                    + 'px;height:' + this.canvasHeight
+                    + 'px;overflow:hidden;display:block;margin: 0 auto;' });
             }
         }
 
@@ -266,7 +277,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             _navigator.mediaDevices.getUserMedia = function (constraints) {
 
                 // First get ahold of the legacy getUserMedia, if present
-                var getUserMedia = _navigator.getUserMedia || _navigator.webkitGetUserMedia || _navigator.mozGetUserMedia;
+                const getUserMedia = _navigator.getUserMedia
+                    || _navigator.webkitGetUserMedia
+                    || _navigator.mozGetUserMedia;
 
                 // Some browsers just don't implement it - return a rejected promise with an error
                 // to keep a consistent interface
