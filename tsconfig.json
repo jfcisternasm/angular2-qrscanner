@@ -14,11 +14,13 @@
       "node_modules/@types"
     ]
   },
-  "files": [
+  "include": [
     "index.ts",
     "index.ngfactory.ts",
     "src/",
-    "src/*"
+    "src/*",
+    "./**/*",
+    "src/",
   ],
   "exclude": [
     "node_modules",
