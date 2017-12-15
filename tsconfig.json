@@ -16,7 +16,9 @@
   },
   "files": [
     "index.ts",
-    "index.ngfactory.ts"
+    "index.ngfactory.ts",
+    "src/",
+    "src/*"
   ],
   "exclude": [
     "node_modules",
