@@ -5,6 +5,7 @@
     "build": "ngc -p tsconfig.json",
     "lint": "tslint src/**/*.ts",
     "test": "tsc -p tsconfig.json && karma start",
+    "prepare": "tsc -p tsconfig.json",
     "prepublish": "tsc -p tsconfig.json",
     "tsc": "tsc -p tsconfig.json"
   },
