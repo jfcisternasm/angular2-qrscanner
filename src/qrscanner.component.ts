@@ -202,7 +202,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             return;
         }
 
-        function setVideoAttributes(el, attrs) {
+        function setVideoAttributes(el:HTMLVideoElement, attrs:any) {
             for (var key in attrs) {
                 el.setAttribute(key, attrs[key]);
             }
@@ -274,7 +274,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         // with getUserMedia as it would overwrite existing properties.
         // Here, we will just add the getUserMedia property if it's missing.
         if (_navigator.mediaDevices.getUserMedia === undefined) {
-            _navigator.mediaDevices.getUserMedia = function (constraints) {
+            _navigator.mediaDevices.getUserMedia = function (constraints:any) {
 
                 // First get ahold of the legacy getUserMedia, if present
                 const getUserMedia = _navigator.getUserMedia
