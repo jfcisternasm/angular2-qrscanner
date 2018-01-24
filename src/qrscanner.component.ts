@@ -69,6 +69,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     @Output() onRead: EventEmitter<string> = new EventEmitter<string>();
+    @Output() onDeviceNotAllowed: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     @ViewChild('videoWrapper') videoWrapper: ElementRef;
     @ViewChild('qrCanvas') qrCanvas: ElementRef;
@@ -141,6 +142,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             this.qrCode.myCallback = (decoded: string) => this.decodeCallback(decoded);
 
             this.findMediaDevices.then((options) => this.connectDevice(options));
+        } else {
+            this.onDeviceNotAllowed.emit(true);
         }
     }
 
@@ -213,6 +216,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
         function error(): void {
             self.gUM = false;
+            this.onDeviceNotAllowed.emit(true);
             return;
         }
 
@@ -243,7 +247,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                     }
                     self.qrCode.decode(self.qrCanvas.nativeElement);
                 } catch (e) {
-                    if (this.debug) {
+                    if (self.debug) {
                         console.log(e);
                     }
                     self.captureTimeout = setTimeout(captureToCanvas, self.updateTime);
@@ -298,11 +302,19 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                 // Some browsers just don't implement it - return a rejected promise with an error
                 // to keep a consistent interface
                 if (!getUserMedia) {
-                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'))
+                        .then(() => {
+                        // not called
+                    }, ( err: any) => {
+                        if (this.debug) {
+                            console.log(err);
+                        }
+                        this.onDeviceNotAllowed.emit(true);
+                    });
                 }
 
                 // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-                return new Promise(function (resolve, reject) {
+                return new Promise((resolve, reject) => {
                     getUserMedia.call(_navigator, this.constraints, resolve, reject);
                 });
             };
@@ -311,6 +323,10 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         if (_navigator.getUserMedia || _navigator.mediaDevices.getUserMedia) {
             _navigator.mediaDevices.getUserMedia(this.constraints).then(success, error);
         } else {
+            this.onDeviceNotAllowed.emit(true);
+            if (this.debug) {
+                console.log('getUserMedia not supported in this browser');
+            }
             throw 'getUserMedia not supported in this browser';
         }
 
