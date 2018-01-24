@@ -37,6 +37,7 @@ export class AppModule { }
   [stopAfterScan]="true" <!-- should the scanner stop after first success? (default: true) -->
   [updateTime]="500"     <!-- miliseconds between new capture              (default: 500) -->
   [square]="true"        <!-- should the video be squared?                 (default: true) -->
+  (onDeviceNotAllowed) = "showNotAllowMessage($event) <!-- Browser not supported -->
   (onRead)="decodedOutput($event)">
 </qr-scanner>
 ```
