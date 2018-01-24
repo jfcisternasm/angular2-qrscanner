@@ -75,7 +75,6 @@ export class QRCode  {
 
         var end = new Date().getTime();
         var time = end - start;
-        console.log(time);
 
         return str;
     }
