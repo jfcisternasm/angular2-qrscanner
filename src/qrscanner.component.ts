@@ -143,6 +143,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
             this.findMediaDevices.then((options) => this.connectDevice(options));
         } else {
+            if(this.debug)
+                console.log('Device not supported');
+
             this.onDeviceNotAllowed.emit(true);
         }
     }
@@ -216,6 +219,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
         function error(): void {
             self.gUM = false;
+
+            if(self.debug)
+                console.log('Error, when trying to scan');
             self.onDeviceNotAllowed.emit(true);
             return;
         }
