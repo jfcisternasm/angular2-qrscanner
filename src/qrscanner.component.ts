@@ -26,7 +26,7 @@ import { QRCode } from './qrdecode/qrcode'
  *     [videoElementHeight]="480"     canvas height                          (default: 500)
  *     [mirror]="false"         should the image be a mirror?                (default: false)
  *     [stopAfterScan]="true"   should the scanner stop after first success? (default: true)
- *     [updateTime]="500"       miliseconds between new capture              (default: 500)
+ *     [updateTime]="500"       milliseconds between new capture              (default: 500)
  *     [square]="true"          should the video be squared?                 (default: true)
  *     (onRead)="decodedOutput(string)" </qr-scanner>
  *
@@ -70,6 +70,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @Output() onRead: EventEmitter<string> = new EventEmitter<string>();
     @Output() onDeviceNotAllowed: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() unSupportedBrowser: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     @ViewChild('videoWrapper') videoWrapper: ElementRef;
     @ViewChild('qrCanvas') qrCanvas: ElementRef;
@@ -146,7 +147,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
             if(this.debug)
                 console.log('Device not supported');
 
-            this.onDeviceNotAllowed.emit(true);
+            this.unSupportedBrowser.emit(true);
         }
     }
 
@@ -243,6 +244,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                         // landscape
                         self.gCtx.drawImage(self.videoElement, 0, 0, self.canvasWidth, self.canvasHeight);
                     } else {
+                        // clear image before saving a new one
                         self.gCtx.clearRect(0, 0, self.canvasWidth, self.canvasHeight);
                         // portrait
                         const scale = self.canvasWidth / self.canvasHeight;
@@ -315,7 +317,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
                         if (this.debug) {
                             console.log(err);
                         }
-                        this.onDeviceNotAllowed.emit(true);
+                        this.unSupportedBrowser.emit(true);
                     });
                 }
 
@@ -329,7 +331,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         if (_navigator.getUserMedia || _navigator.mediaDevices.getUserMedia) {
             _navigator.mediaDevices.getUserMedia(this.constraints).then(success, error);
         } else {
-            this.onDeviceNotAllowed.emit(true);
+            this.unSupportedBrowser.emit(true);
             if (this.debug) {
                 console.log('getUserMedia not supported in this browser');
             }
