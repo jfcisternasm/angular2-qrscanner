@@ -63,7 +63,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     @Input() updateTime = 500;
     @Input() square = true;
     @Input() videoConstraints = {
-        facingMode: ['user'],
+        facingMode: ['environment'],
         height: {ideal: 1080},
         width: {ideal: 1920},
     };
